@@ -1,0 +1,28 @@
+# Install everything with: pip install -r requirements.txt
+# ">=" means "this version or newer".
+
+# Reads the CSV files and does all the table work (cleaning, grouping, totals).
+pandas>=2.1
+# The maths behind the forecast.
+numpy>=1.26
+# Turns app.py into a web page. app.py passes width="stretch" to its charts,
+# and st.plotly_chart accepts that from version 1.51 on. 1.51 needs Python 3.10 or newer.
+streamlit>=1.51
+# Draws the charts on that page.
+plotly>=5.20
+# Connects Python to PostgreSQL or MySQL through one URL.
+sqlalchemy>=2.0
+# The PostgreSQL driver that sqlalchemy uses. Only needed for PostgreSQL.
+psycopg2-binary>=2.9
+# The MySQL driver that sqlalchemy uses. Only needed for MySQL.
+pymysql>=1.1
+# pymysql uses this for some MySQL 8 logins and stops with an error when it is missing. Only needed for MySQL.
+cryptography>=42
+# Downloads the dataset from Hugging Face. Only needed for src/download_dataset.py.
+datasets>=2.18
+# Runs the tests in tests/.
+pytest>=8.0
+# Lets plotly save charts as PNG files. Only needed for src/generate_assets.py.
+kaleido>=0.2.1
+# Writes the PowerPoint file. Only needed for src/generate_assets.py.
+python-pptx>=0.6.23

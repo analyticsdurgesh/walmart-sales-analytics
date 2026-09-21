@@ -1,0 +1,26 @@
+# Files that git should leave out of the repository.
+
+# Python writes these cache folders and files by itself. They are rebuilt when needed.
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Local Python environments. Anyone can rebuild them from requirements.txt.
+.venv/
+venv/
+
+# Secrets. A .env file or Streamlit's secrets file would hold database passwords.
+.env
+.streamlit/secrets.toml
+
+# Output of "python -m src.generate_assets". It can be made again at any time.
+docs/
+reports/
+
+# Files that tools and the operating system leave behind.
+.DS_Store
+.claude/
+.vscode/
+.idea/
+nohup.out
+*.log
