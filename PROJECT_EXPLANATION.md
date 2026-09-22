@@ -31,6 +31,9 @@ The CSV is the starting point for everything. `src/transform.py` is the one plac
 | Path | What it does |
 | --- | --- |
 | `run.py` | The runner. One command that checks the setup and starts the dashboard. It can also run the tests and build and load a database (section 9). |
+| `run.command`, `run.bat` | Double-click launchers for Mac and Windows. On the first run they make a project-local Python in `.venv`, then they hand over to `run.py`. |
+| `HOW_TO_RUN.md` | The step-by-step guide for macOS and Windows: Python, the launcher, the same steps by hand, PostgreSQL, MySQL, VS Code, troubleshooting. |
+| `.gitattributes` | Keeps `run.bat` in Windows line endings and the scripts and CSV files in Unix line endings on every checkout. |
 | `app.py` | The dashboard. Builds the sidebar, loads the chosen data, draws the tabs. |
 | `src/transform.py` | Cleaning rules and the summary functions (KPIs, monthly totals, store ranking, holiday gap, correlations). |
 | `src/data_loader.py` | Three small loaders: weekly CSV, POS CSV, SQL query. |
@@ -43,7 +46,7 @@ The CSV is the starting point for everything. `src/transform.py` is the one plac
 | `data/raw/walmart_real_sales.csv` | The main dataset. |
 | `data/sample/walmart_sales_sample.csv` | A 10-row sample of receipt-level (POS) data. |
 | `tests/test_transform.py` | Four tests for the cleaning, the summaries and the forecast. |
-| `tests/test_run.py` | 16 tests for the runner: the SQL splitter, the check on DROP statements, the password masking, the CSV reader, the choice of error line and the package version check. |
+| `tests/test_run.py` | 17 tests for the runner and the launchers: the SQL splitter, the check on DROP statements, the password masking, the CSV reader, the choice of error line, the package version check, and the launcher files. |
 | `requirements.txt` | The Python packages to install. |
 
 The code is commented line by line. In the Python files the comment sits above the line it explains. In the SQL files, column comments sit to the right of the column.
@@ -193,7 +196,7 @@ With `--dataset-type pos` the script writes to two other tables, which pandas cr
 python run.py
 ```
 
-Pressing the Run button on `run.py` in VS Code does the same. Where the shell has no `python` command (a Mac or Linux without conda or an active virtual environment), type `python3 run.py`. The runner prints which Python is running it, checks that pandas, numpy, streamlit, plotly and sqlalchemy are installed, counts the rows of the CSV, starts Streamlit on the first free port from 8501 to 8510 and opens the browser. Ctrl+C stops the dashboard and leaves nothing running.
+Pressing the Run button on `run.py` in VS Code does the same. So does a double-click on `run.command` (Mac) or `run.bat` (Windows), with one addition: on the first run those two make a project-local Python in the folder `.venv` and start `run.py` with it, so the packages land inside the project folder and nowhere else. [HOW_TO_RUN.md](HOW_TO_RUN.md) has the step-by-step version for both systems. Where the shell has no `python` command (a Mac or Linux without conda or an active virtual environment), type `python3 run.py`. The runner prints which Python is running it, checks that pandas, numpy, streamlit, plotly and sqlalchemy are installed, counts the rows of the CSV, starts Streamlit on the first free port from 8501 to 8510 and opens the browser. Ctrl+C stops the dashboard and leaves nothing running.
 
 | Command | What it does |
 | --- | --- |
@@ -250,7 +253,7 @@ Run the tests from the project folder:
 python -m pytest
 ```
 
-The expected last line is `20 passed`.
+The expected last line is `21 passed`.
 
 ### PostgreSQL
 
@@ -301,7 +304,7 @@ All of this was done on 21 and 22 September 2026 with Python 3.13.5, pandas 2.2.
 
 | What | Result |
 | --- | --- |
-| `python -m pytest` | 20 passed (4 before the runner's tests were added) |
+| `python -m pytest` | 21 passed (4 before the runner's tests were added) |
 | `streamlit run app.py` | Server started on port 8501 and answered its health check |
 | Dashboard, "Real weekly CSV" | No errors. Cards: $6,737,218,987 / $1,046,965 / 6,435 / 45. Six tabs. |
 | Forecast slider moved to 26 | No errors |
@@ -318,7 +321,10 @@ All of this was done on 21 and 22 September 2026 with Python 3.13.5, pandas 2.2.
 | MySQL: `02_indexes.sql` a second time without 01 | Fails with "Duplicate key name", as the file's comment says |
 | Weekly ETL a second time without a reset | Fails with a duplicate key error, by design |
 | `python -m src.generate_assets` (in a scratch copy) | Wrote 2 SVG, 2 PNG and 1 PPTX |
-| `python run.py test` on Python 3.13 and 3.14 | 20 passed on both |
+| `python run.py test` on Python 3.13 and 3.14 | 21 passed on both |
+| `run.command` in a copy whose path has a space: only Python 3.9 on the PATH; first run with 3.13; second run; a `.venv` made with 3.9; a `.venv` whose Python was removed; a `.venv` without pip; a link to the file started elsewhere | Refused with exit 1; made `.venv` and ran `--help`; reused `.venv`; refused with exit 1; rebuilt; rebuilt; refused with exit 1 |
+| `run.command` under a fake terminal: `check`, `test` with `y`, the dashboard with `y` then Ctrl+C, the dashboard again | Pause shown and exit 1; 21 passed; dashboard up, stopped cleanly, pause shown, exit 0; no question the second time |
+| `run.bat` | Not run. Windows was not available. Reviewed by reading only. |
 | Streamlit 1.40 simulated, no keyboard | Reported as TOO OLD (needs 1.51 or newer), pip command shown, nothing installed, exit code 2 |
 | `python run.py check` on Python 3.9 | "This project needs Python 3.10 or newer", exit code 2 |
 | `python run.py check` | Python 3.14: plotly reported missing, exit code 1. Python 3.13: ready, exit code 0. |
@@ -354,7 +360,7 @@ The dashboard mock-up in `src/generate_assets.py` has its numbers typed in by ha
 
 "Database" mode runs whatever SQL is typed into the sidebar, with the rights of the database user in the URL. On your own laptop that is fine. Before putting the app somewhere others can reach it, connect with a database user that can only read.
 
-The tests cover the cleaning, the ranking, the monthly total, the holiday percentage, the row count of the forecast, and five parts of the runner: the SQL splitter with its DROP check, the password masking, the CSV reader, the choice of error line and the package version check. Nothing tests `app.py`, `src/etl.py` or the POS cleaning with pytest. The SQL files are only tested for how they split into statements. Whether they run is checked by `python run.py database`, which needs a live server.
+The tests cover the cleaning, the ranking, the monthly total, the holiday percentage, the row count of the forecast, and five parts of the runner: the SQL splitter with its DROP check, the password masking, the CSV reader, the choice of error line and the package version check, plus the presence and line endings of the two launcher files. Nothing tests `app.py`, `src/etl.py` or the POS cleaning with pytest. The SQL files are only tested for how they split into statements. Whether they run is checked by `python run.py database`, which needs a live server.
 
 ## 12. Describing the project to someone else
 

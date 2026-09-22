@@ -266,3 +266,19 @@ def test_package_problem_notices_a_version_that_is_too_old(monkeypatch):
     # That is the other kind of problem.
     assert run.package_problem("streamlit") == "MISSING"
 
+
+# The two launcher files must be there, hand over to run.py, and keep the line endings their system needs.
+def test_launchers_hand_over_to_run_py():
+    # Read both as bytes, so line endings can be counted.
+    command = (run.PROJECT / "run.command").read_bytes()
+    # The Windows one.
+    bat = (run.PROJECT / "run.bat").read_bytes()
+    # The Mac launcher passes every word typed after it on to run.py.
+    assert b'run.py "$@"' in command
+    # The Windows launcher does the same with %*.
+    assert b"run.py %*" in bat
+    # A shell script must not have Windows line endings. bash would choke on the extra character.
+    assert b"\r\n" not in command
+    # A batch file must have them on every line. cmd can lose its place in a file without them.
+    assert bat.count(b"\r\n") == bat.count(b"\n")
+

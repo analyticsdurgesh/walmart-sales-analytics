@@ -404,7 +404,9 @@ def ensure_packages(what: str, modules: list) -> None:
             "  1. Run this file again in a terminal and answer y.\n"
             "  2. Or paste the command above into a terminal yourself, then run this file again.\n"
             "  3. Or, if another Python on your computer already has what is missing, select it in VS Code\n"
-            "     (click the Python version at the bottom right) and run this file again."
+            "     (click the Python version at the bottom right) and run this file again.\n"
+            "  4. Or start the project with run.command (Mac) or run.bat (Windows). They make a\n"
+            "     project-local Python in the folder .venv, where installs are always allowed."
         ))
     # pip itself can be missing on some Python installs.
     if importlib.util.find_spec("pip") is None:
@@ -414,10 +416,13 @@ def ensure_packages(what: str, modules: list) -> None:
     result = subprocess.run(command, env=child_env())
     # pip prints its own reason when it fails.
     if result.returncode != 0:
-        # End the run with the two usual reasons.
+        # End the run with the usual reasons. Some Pythons refuse installs on purpose (pip then says
+        # "externally-managed-environment"), and a project-local Python is the way around that.
         raise Stop(1, (
             f"The install did not work (pip ended with code {result.returncode}). pip's own message above says why.\n"
-            "The usual reasons are no internet connection or no permission to change this Python."
+            "The usual reasons are no internet connection, or a Python that does not allow installs.\n"
+            "In the second case start the project with run.command (Mac) or run.bat (Windows) instead:\n"
+            "they make a project-local Python in the folder .venv, where installs are always allowed."
         ))
     # Make Python notice the packages that were just added.
     importlib.invalidate_caches()
@@ -1488,6 +1493,8 @@ def main(argv=None) -> int:
         say(f"This project needs Python 3.10 or newer. You are using {sys.version_info[0]}.{sys.version_info[1]}.")
         # Say where to change it.
         say("In VS Code click the Python version at the bottom right and pick a newer one.")
+        # The launchers look for a newer Python by themselves.
+        say("Or start the project with run.command (Mac) or run.bat (Windows), which look for a newer Python.")
         # 2 means the user has to act.
         return 2
     # RawDescriptionHelpFormatter keeps the line breaks of the help text below.

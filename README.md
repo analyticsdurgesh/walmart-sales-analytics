@@ -6,15 +6,20 @@ The full walkthrough is in [PROJECT_EXPLANATION.md](PROJECT_EXPLANATION.md): how
 
 ## Run it
 
+Mac: double-click [run.command](run.command). Windows: double-click [run.bat](run.bat). Both make a project-local Python in `.venv` on the first run, ask once before installing the five dashboard packages, then start the dashboard and open the browser. Ctrl+C stops it.
+
+From a terminal, the same with the project's own Python:
+
 ```bash
 git clone https://github.com/analyticsdurgesh/walmart-sales-analytics.git
 cd walmart-sales-analytics
-python run.py
+bash run.command        # Mac and Linux
+.\run.bat               # Windows
 ```
 
-If the shell answers `command not found: python` (a Mac or Linux without conda or an active virtual environment), type `python3 run.py`. The project needs Python 3.10 or newer.
+Or `python run.py` with any Python 3.10 or newer that you choose (`python3` on a Mac without conda), or the Run button on [run.py](run.py) in VS Code. The runner checks the packages and the data file first. If a package is missing or too old it shows the exact `pip install` command and asks before it installs anything.
 
-Or press the Run button on [run.py](run.py) in VS Code. The runner checks the packages and the data file, starts the dashboard on the first free port from 8501 and opens the browser. If a package is missing or too old it shows the exact `pip install` command and asks before it installs anything. Ctrl+C stops the dashboard.
+[HOW_TO_RUN.md](HOW_TO_RUN.md) walks through everything step by step on macOS and on Windows: installing Python, the launcher, the same steps by hand, PostgreSQL and MySQL, VS Code, and a troubleshooting table.
 
 `python run.py test` runs the tests. `python run.py database` builds and loads PostgreSQL or MySQL and compares the result with the CSV. `python run.py all` runs the tests, then the database step, then the dashboard. `python run.py --help` lists the actions and options.
 
@@ -40,12 +45,14 @@ python -m pytest
 | Path | Contents |
 | --- | --- |
 | `run.py` | One command that runs the project: dashboard, tests, database |
+| `run.command`, `run.bat` | Double-click launchers for Mac and Windows. They make `.venv` and hand over to `run.py` |
+| `HOW_TO_RUN.md` | Step-by-step guide for macOS and Windows |
 | `app.py` | The Streamlit dashboard |
 | `src/` | Cleaning and summaries (`transform.py`), loaders, the forecast, the ETL script, two optional helper scripts |
 | `sql/postgres/`, `sql/mysql/` | Schema, indexes, views and analysis queries for each database |
 | `data/raw/` | The weekly dataset: 6,435 rows, February 2010 to October 2012 |
 | `data/sample/` | A 10-row sample of receipt-level data |
-| `tests/` | 20 pytest tests |
+| `tests/` | 21 pytest tests |
 
 ## The data in four numbers
 

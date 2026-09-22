@@ -1,0 +1,9 @@
+# Line endings per file type, whatever computer the project is checked out on.
+
+# Windows batch files need Windows line endings. cmd can lose its place in a file with Unix line endings.
+*.bat text eol=crlf
+# Shell scripts need Unix line endings, also when checked out on Windows.
+*.command text eol=lf
+*.sh text eol=lf
+# The data files keep Unix line endings, so their bytes are the same everywhere.
+*.csv text eol=lf
